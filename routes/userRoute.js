@@ -4,9 +4,10 @@ const {
   validateUser,
   handleValidationError,
 } = require("../middleware/validateUser");
-const router = express.Router();
+const router = express.Router(); // Correct router import
 
-router.get("/login", validateUser, handleValidationError, loginUser);
-router.get("/register", validateUser, handleValidationError, registerUser);
+// Proper route definitions
+router.post("/login", loginUser);
+router.post("/register", validateUser, handleValidationError, registerUser);
 
 module.exports = router;

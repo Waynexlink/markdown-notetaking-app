@@ -3,13 +3,14 @@ const AppError = require("../utils/AppError");
 const User = require("../models/userModel");
 const jwt = require("jsonwebtoken");
 
-const registerUser = (req, res, next) => {
+const registerUser = async (req, res, next) => {
   try {
     const { name, email, password } = req.body;
     //check if the user is existing
-    const existingUser = User.findOne({ email });
+    const existingUser = await User.findOne({ email });
+    console.log(existingUser);
     if (existingUser)
-      return next(new AppError(`User already exist please login`));
+      return next(new AppError(`User already exist please login`, 401));
 
     const newUser = User.create({ name, email, password });
     res.status(201).json({
