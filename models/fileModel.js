@@ -10,10 +10,6 @@ const fileSchema = new mongoose.Schema(
       required: true,
       type: String,
     },
-    dateCreated: {
-      type: Date,
-      default: Date.now(),
-    },
   },
   { timestamps: true }
 );
