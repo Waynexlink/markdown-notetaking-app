@@ -1,7 +1,7 @@
 const File = require("../models/fileModel");
 const path = require("path");
 const AppError = require("../utils/AppError");
-const fs = require("fs");
+const fs = require("fs").promises;
 const marked = require("marked");
 const axios = require("axios");
 const fileUploader = async (req, res, next) => {
@@ -55,19 +55,17 @@ const renderFile = async (req, res, next) => {
       file.filename
     );
 
-    fs.readFile(filePath, "utf-8", (err, data) => {
-      if (err) return next(new AppError("Error reading file", 500));
+    const data = await fs.readFile(filePath, "utf-8");
 
-      const htmlContent = marked.parse(data);
+    const htmlContent = marked.parse(data);
 
-      res.status(200).json({
-        status: "success",
-        message: " File rendered Successfully",
-        data: htmlContent,
-      });
+    res.status(200).json({
+      status: "success",
+      message: " File rendered Successfully",
+      data: htmlContent,
     });
   } catch (error) {
-    next(err);
+    next(error);
   }
 };
 const grammerCheck = async (req, res, next) => {
@@ -84,7 +82,7 @@ const grammerCheck = async (req, res, next) => {
       file.filename
     );
 
-    const data = fs.readFileSync(filePath, "utf-8");
+    const data = await fs.readFile(filePath, "utf-8");
 
     const resData = await axios({
       method: "POST",
@@ -120,13 +118,12 @@ const deleteFile = async (req, res, next) => {
       "uploads",
       file.filename
     );
-    fs.unlink(filePath, (err) => {
-      if (err) return next(new AppError("failed to delete file"));
+    await fs.promises.unlink(filePath).catch((err) => {
+      console.log("file deletion error", err);
     });
 
     await File.findByIdAndDelete(id);
-    if (!file) return next(new AppError("No files found", 404));
-    res.status(200).end();
+    res.status(204).end();
   } catch (error) {
     next(error);
   }
